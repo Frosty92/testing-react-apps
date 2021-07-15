@@ -37,6 +37,7 @@ test('counter increments and decrements when the buttons are clicked', () => {
     cancelable: true,
     button: 0,
   })
+
   increment.dispatchEvent(incrementClickEvent)
   expect(message.textContent).toBe('Current count: 1')
   const decrementClickEvent = new MouseEvent('click', {

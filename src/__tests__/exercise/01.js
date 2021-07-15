@@ -18,12 +18,25 @@ test('counter increments and decrements when the buttons are clicked', () => {
   const btns = div.querySelectorAll('button') //arrange buttons!
 
   const increment = btns[1]
-  increment.click() //act!
+
+  const incrementClickEvent = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    button: 0,
+  })
+  increment.dispatchEvent(incrementClickEvent)
+
   expect(msgDiv.textContent).toBe('Current count: 1') //assert
 
   const decrement = btns[0]
   //check that counter decrements onClick:
-  decrement.click()
+
+  const decrementClickEvent = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    button: 0,
+  })
+  decrement.dispatchEvent(decrementClickEvent)
   expect(msgDiv.textContent).toBe('Current count: 0')
 
   //always clean up after,  If you don't cleanup, then it could impact other tests and/or cause a memory leak
