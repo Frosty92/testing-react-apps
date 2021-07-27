@@ -2,7 +2,7 @@
 // http://localhost:3000/login-submission
 
 import * as React from 'react'
-import {waitForElementToBeRemoved} from '@testing-library/react'
+import {getByRole, waitForElementToBeRemoved} from '@testing-library/react'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {build, fake} from '@jackfranklin/test-data-bot'
@@ -21,6 +21,13 @@ const server = setupServer(
   rest.post(
     'https://auth-provider.example.com/api/login',
     async (req, res, ctx) => {
+      if (!req.body.username) {
+        return res(ctx.status(400), ctx.json({message: 'username required'}))
+      }
+
+      if (!req.body.password) {
+        return res(ctx.status(400), ctx.json({message: 'password required'}))
+      }
       return res(ctx.json({username: req.body.username}))
     },
   ),
@@ -39,7 +46,19 @@ test(`logging in displays the user's username`, async () => {
 
   userEvent.click(screen.getByRole('button', {name: /submit/i}))
 
-  await waitForElementToBeRemoved(screen.getByLabelText(/loading.../i))
+  await waitForElementToBeRemoved(screen.getByLabelText(/loading/i))
 
   expect(screen.getByText(username)).toBeInTheDocument()
+})
+
+test('Omitting the password results in an error', async () => {
+  render(<Login />)
+  const {username, password} = buildLoginForm()
+  userEvent.type(screen.getByLabelText(/username/i), username)
+
+  userEvent.click(screen.getByRole('button', {name: /submit/i}))
+
+  await waitForElementToBeRemoved(screen.getByLabelText(/loading/i))
+
+  expect(screen.getByRole('alert')).toHaveTextContent('password required')
 })
