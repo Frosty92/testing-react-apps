@@ -53,12 +53,15 @@ test(`logging in displays the user's username`, async () => {
 
 test('Omitting the password results in an error', async () => {
   render(<Login />)
-  const {username, password} = buildLoginForm()
+  const {username} = buildLoginForm()
   userEvent.type(screen.getByLabelText(/username/i), username)
 
   userEvent.click(screen.getByRole('button', {name: /submit/i}))
 
   await waitForElementToBeRemoved(screen.getByLabelText(/loading/i))
 
-  expect(screen.getByRole('alert')).toHaveTextContent('password required')
+  //snapshot testing!
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"password required"`,
+  )
 })
