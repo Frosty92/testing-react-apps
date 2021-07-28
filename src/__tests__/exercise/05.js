@@ -37,6 +37,27 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
+test('500 response from server is handled correctly', async () => {
+  //add a handler where the server returns a 500 response. Add a handler here because we're co-locating state!
+
+  server.use(
+    rest.post(
+      'https://auth-provider.example.com/api/login',
+      async (req, res, ctx) => {
+        return res(ctx.status(500), ctx.json({message: 'Something went wrong'}))
+      },
+    ),
+  )
+
+  render(<Login />)
+  userEvent.click(screen.getByRole('button', {name: /submit/i}))
+
+  await waitForElementToBeRemoved(screen.getByLabelText(/loading/i))
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"Something went wrong"`,
+  )
+})
+
 test(`logging in displays the user's username`, async () => {
   render(<Login />)
   const {username, password} = buildLoginForm()
